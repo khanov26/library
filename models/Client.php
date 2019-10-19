@@ -3,16 +3,22 @@
 namespace app\models;
 
 use Yii;
+use yii\base\NotSupportedException;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
 /**
  * This is the model class for table "{{%client}}".
  *
  * @property int $id
  * @property string $name
+ * @property string $email
+ * @property string $password_hash
+ * @property string $auth_key
  *
  * @property Borrow[] $borrows
  */
-class Client extends \yii\db\ActiveRecord
+class Client extends ActiveRecord implements IdentityInterface
 {
     /**
      * {@inheritdoc}
@@ -20,6 +26,15 @@ class Client extends \yii\db\ActiveRecord
     public static function tableName()
     {
         return '{{%client}}';
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function init()
+    {
+        parent::init();
+        $this->on(self::EVENT_BEFORE_INSERT, [$this, 'generateAuthKey']);
     }
 
     /**
@@ -50,5 +65,77 @@ class Client extends \yii\db\ActiveRecord
     public function getBorrows()
     {
         return $this->hasMany(Borrow::className(), ['client_id' => 'id']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented');
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAuthKey()
+    {
+        return $this->auth_key;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function validateAuthKey($authKey)
+    {
+        return $this->auth_key === $authKey;
+    }
+
+    /**
+     * Генерирует новый ключ аутенфикации, основанной на cookie
+     *
+     * @throws \yii\base\Exception
+     */
+    public function generateAuthKey()
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString();
+    }
+
+    /**
+     * Генерирует хэш пароля и устанавливает его для модели
+     *
+     * @param string $password
+     * @throws \yii\base\Exception
+     */
+    public function setPassword(string $password)
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    /**
+     * Проверяет правильность пароля
+     *
+     * @param string $password
+     * @return bool
+     */
+    public function validatePassword(string $password): bool
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
 }
