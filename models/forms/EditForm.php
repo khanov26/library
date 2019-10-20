@@ -6,13 +6,48 @@ use app\models\Client;
 use Yii;
 use yii\base\Model;
 
+/**
+ * Class EditForm
+ *
+ * @property Client $client
+ */
 class EditForm extends Model
 {
+    const SCENARIO_EDIT_ADMIN = 'edit_by_admin';
+    const SCENARIO_EDIT_CLIENT = 'edit_by_client';
+
     public $name;
     public $email;
     public $currentPassword;
     public $newPassword;
     public $newPasswordConfirm;
+
+    /** @var Client */
+    private $_client;
+
+
+    /**
+     * {@inheritdoc}
+     */
+    public function init()
+    {
+        parent::init();
+
+        if ($this->scenario === self::SCENARIO_DEFAULT) {
+            $this->scenario = self::SCENARIO_EDIT_CLIENT;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function scenarios()
+    {
+        $scenarios[self::SCENARIO_EDIT_ADMIN] = ['name', 'email', 'newPassword'];
+        $scenarios[self::SCENARIO_EDIT_CLIENT] = array_merge($scenarios[self::SCENARIO_EDIT_ADMIN], ['currentPassword', 'newPasswordConfirm']);
+
+        return $scenarios;
+    }
 
     public function attributeLabels()
     {
@@ -38,9 +73,7 @@ class EditForm extends Model
             ['email', 'email'],
 
             ['email', 'unique', 'targetClass' => Client::class, 'when' => function($model, $attribute) {
-                /** @var Client $client */
-                $client = Yii::$app->user->identity;
-                return $client->$attribute !== $model->$attribute;
+                return $this->client->$attribute !== $model->$attribute;
             }, 'message' => 'Адрес уже используется'],
 
             ['currentPassword', 'required', 'when' => function($model, $attribute) {
@@ -74,25 +107,39 @@ class EditForm extends Model
             return false;
         }
 
-        /** @var Client $client */
-        $client = Yii::$app->user->identity;
-
-        $client->name = $this->name;
-        $client->email = $this->email;
+        $this->client->name = $this->name;
+        $this->client->email = $this->email;
 
         if (!empty($this->newPassword)) {
-            $client->password = $this->newPassword;
+            $this->client->password = $this->newPassword;
         }
 
-        return $client->save();
+        return $this->client->save();
     }
 
     public function loadCurrentData()
     {
-        /** @var Client $client */
-        $client = Yii::$app->user->identity;
+        $this->name = $this->client->name;
+        $this->email = $this->client->email;
+    }
 
-        $this->name = $client->name;
-        $this->email = $client->email;
+    /**
+     * @return Client
+     */
+    public function getClient(): Client
+    {
+        if ($this->_client === null) {
+            $this->_client = Yii::$app->user->identity;
+        }
+
+        return $this->_client;
+    }
+
+    /**
+     * @param Client $client
+     */
+    public function setClient(Client $client): void
+    {
+        $this->_client = $client;
     }
 }

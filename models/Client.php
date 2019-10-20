@@ -16,6 +16,7 @@ use yii\web\IdentityInterface;
  * @property string $password_hash
  * @property string $auth_key
  *
+ * @property string $password
  * @property Borrow[] $borrows
  */
 class Client extends ActiveRecord implements IdentityInterface

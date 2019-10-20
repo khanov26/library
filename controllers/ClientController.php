@@ -45,7 +45,8 @@ class ClientController extends Controller
     {
         $model = new SignupForm();
 
-        if ($model->load(Yii::$app->request->post()) && $model->signup()) {
+        if ($model->load(Yii::$app->request->post()) && $client = $model->signup()) {
+            Yii::$app->user->login($client);
             Yii::$app->session->setFlash('success', 'Спасибо за регистрацию');
 
             return $this->goHome();
