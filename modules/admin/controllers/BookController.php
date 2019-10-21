@@ -2,6 +2,7 @@
 
 namespace app\modules\admin\controllers;
 
+use app\models\Borrow;
 use app\models\Genre;
 use app\modules\admin\models\forms\BookForm;
 use Yii;

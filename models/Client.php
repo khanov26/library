@@ -68,6 +68,19 @@ class Client extends ActiveRecord implements IdentityInterface
         return $this->hasMany(Borrow::className(), ['client_id' => 'id']);
     }
 
+    public function getBooks()
+    {
+        $bookIds = $this->getBorrows()
+            ->select('book_id')
+            ->where(['brought_time' => null, 'status' => Borrow::STATUS_RESOLVED])
+            ->column();
+
+        return Book::find()
+            ->with('author', 'genres')
+            ->where(['id' => $bookIds])
+            ->all();
+    }
+
     /**
      * {@inheritdoc}
      */

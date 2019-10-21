@@ -38,6 +38,7 @@ AppAsset::register($this);
     ]);
     $menuItems = [
         ['label' => 'Главная', 'url' => ['/site/index']],
+        ['label' => 'Книги', 'url' => ['/book/index']],
     ];
 
     $dropDown = Html::beginTag('li', ['class' => 'dropdown']);
@@ -54,6 +55,7 @@ AppAsset::register($this);
         $dropDownItems[] = ['label' => 'Регистрация', 'url' => ['/client/signup']];
     } else {
         $dropDownItems[] = ['label' => 'Профиль', 'url' => ['/client/edit']];
+        $dropDownItems[] = ['label' => 'Мои книги', 'url' => ['/client/books']];
         $dropDownItems[] = '<li>'
             . '<a href="#">'
             . Html::beginForm(['/client/logout'])

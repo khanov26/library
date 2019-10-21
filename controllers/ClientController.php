@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Client;
 use app\models\forms\EditForm;
 use app\models\forms\LoginForm;
 use app\models\forms\SignupForm;
@@ -88,5 +89,16 @@ class ClientController extends Controller
     {
         Yii::$app->user->logout();
         $this->goHome();
+    }
+
+    public function actionBooks()
+    {
+        /** @var Client $client */
+        $client = Yii::$app->user->identity;
+        $clientBooks = $client->getBooks();
+
+        return $this->render('/book/index', [
+            'books' => $clientBooks,
+        ]);
     }
 }

@@ -1,0 +1,88 @@
+<?php
+
+namespace app\controllers;
+
+use app\models\Book;
+use app\models\Client;
+use Yii;
+use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+
+class BookController extends Controller
+{
+    public function actionIndex()
+    {
+        $books = Book::find()
+            ->with(['author', 'genres'])
+            ->all();
+
+        return $this->render('index', [
+            'books' => $books,
+        ]);
+    }
+
+    public function actionView(int $id)
+    {
+        $book = Book::findOne(['id' => $id]);
+        if ($book === null) {
+            throw new NotFoundHttpException();
+        }
+
+        return $this->render('view', [
+            'book' => $book,
+        ]);
+    }
+
+    public function actionBorrow(int $id)
+    {
+        $book = Book::findOne(['id' => $id]);
+        if ($book === null) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var Client $client */
+        $client = Yii::$app->user->identity;
+        if ($book->borrow($client)) {
+            Yii::$app->session->setFlash('success', 'Ваш запрос будет рассмотрен администратором');
+        } else {
+            Yii::$app->session->setFlash('warning', 'На данный момент книга не может быть выдана');
+        }
+
+        return $this->redirect(['view', 'id' => $book->id]);
+    }
+
+    public function actionCancelBorrow(int $id)
+    {
+        $book = Book::findOne(['id' => $id]);
+        if ($book === null) {
+            throw new NotFoundHttpException();
+        }
+
+        /** @var Client $client */
+        $client = Yii::$app->user->identity;
+        if ($book->cancelBorrow($client)) {
+            Yii::$app->session->setFlash('success', 'Запрос отменен');
+        } else {
+            Yii::$app->session->setFlash('warning', 'Запрос не может быть отменен');
+        }
+
+        return $this->redirect(['view', 'id' => $book->id]);
+    }
+
+    public function actionBringback(int $id)
+    {
+        $book = Book::findOne(['id' => $id]);
+        if ($book === null) {
+            throw new NotFoundHttpException();
+        }
+        /** @var Client $client */
+        $client = Yii::$app->user->identity;
+        if ($book->bringBack($client)) {
+            Yii::$app->session->setFlash('success', 'Вы вернули книгу');
+        } else {
+            Yii::$app->session->setFlash('warning', 'Книгу не удалось вернуть');
+        }
+
+        return $this->redirect(['view', 'id' => $book->id]);
+    }
+}

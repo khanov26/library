@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "{{%borrow}}".
@@ -12,12 +12,23 @@ use Yii;
  * @property int $client_id
  * @property int $taken_time
  * @property int $brought_time
+ * @property int $status
  *
  * @property Book $book
  * @property Client $client
  */
-class Borrow extends \yii\db\ActiveRecord
+class Borrow extends ActiveRecord
 {
+    public const STATUS_PENDING = 1;
+    public const STATUS_RESOLVED = 2;
+    public const STATUS_REJECTED = 3;
+
+    public const STATUS_LABELS = [
+        self::STATUS_PENDING => 'В ожидании',
+        self::STATUS_RESOLVED => 'Потверждено',
+        self::STATUS_REJECTED => 'Отклонено',
+    ];
+
     /**
      * {@inheritdoc}
      */
