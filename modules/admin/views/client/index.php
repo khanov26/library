@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $searchModel app\modules\admin\models\ClientSearch */
@@ -11,6 +12,10 @@ $this->title = 'Clients';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="client-index">
+    <a href="<?= Url::to(['/admin']) ?>" class="btn btn-primary">
+        <span class="glyphicon glyphicon-arrow-left"></span>
+        <span style="padding-left: 0.5rem;">На главную</span>
+    </a>
 
     <h1><?= Html::encode($this->title) ?></h1>
 
@@ -32,7 +37,5 @@ $this->params['breadcrumbs'][] = $this->title;
 
             ['class' => 'yii\grid\ActionColumn'],
         ],
-    ]); ?>
-
-
+    ]) ?>
 </div>
