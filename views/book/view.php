@@ -35,23 +35,21 @@ use yii\helpers\Html;?>
         <div class="row">
             <div class="col-12">
                 <?php
-                if (!Yii::$app->user->isGuest) {
-                    if (!$book->isBorrowed()) {
+                    if (Yii::$app->user->can('borrowBook') && !$book->isBorrowed()) {
                         echo Html::a('Запросить книгу', ['borrow', 'id' => $book->id], [
                             'class' => 'btn btn-success',
                         ]);
                     }
-                    if ($book->canBeCanceled(Yii::$app->user->identity)) {
+                    if (Yii::$app->user->can('cancelBorrow') && $book->canBeCanceled(Yii::$app->user->identity)) {
                         echo Html::a('Отменить запрос', ['cancel-borrow', 'id' => $book->id], [
                             'class' => 'btn btn-success',
                         ]);
                     }
-                    if ($book->canBeBroughtBack(Yii::$app->user->identity)) {
+                    if (Yii::$app->user->can('bringBackBook') && $book->canBeBroughtBack(Yii::$app->user->identity)) {
                         echo Html::a('Вернуть книгу', ['bringback', 'id' => $book->id], [
                             'class' => 'btn btn-success',
                         ]);
                     }
-                }
                 ?>
             </div>
         </div>

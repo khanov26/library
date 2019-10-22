@@ -21,8 +21,8 @@ class ClientController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['edit'],
-                        'roles' => ['@'],
+                        'actions' => ['edit', 'books'],
+                        'roles' => ['client'],
                     ],
                     [
                         'allow' => true,

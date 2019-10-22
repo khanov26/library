@@ -3,6 +3,7 @@
 namespace app\models\forms;
 
 use app\models\Client;
+use Yii;
 use yii\base\Model;
 
 class SignupForm extends Model
@@ -104,6 +105,9 @@ class SignupForm extends Model
         $client->password = $this->password;
 
         if ($client->save(false)) {
+            $auth = Yii::$app->authManager;
+            $clientRole = $auth->getRole('client');
+            $auth->assign($clientRole, $client->getId());
             return $client;
         }
 

@@ -5,11 +5,37 @@ namespace app\controllers;
 use app\models\Book;
 use app\models\Client;
 use Yii;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 
 class BookController extends Controller
 {
+    public function behaviors()
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'only' => ['borrow', 'cancel-borrow', 'bringback'],
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => ['borrow', 'cancel-borrow', 'bringback'],
+                        'roles' => ['client'],
+                    ],
+                ],
+                'denyCallback' => function () {
+                    if (Yii::$app->user->isGuest) {
+                        Yii::$app->user->returnUrl = Yii::$app->request->url;
+                        return $this->redirect(['/client/login']);
+                    }
+
+                    return $this->goHome();
+                }
+            ],
+        ];
+    }
+
     public function actionIndex()
     {
         $books = Book::find()
